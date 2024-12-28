@@ -9,18 +9,20 @@ Y="$(printf '\033[1;33m')"
 W="$(printf '\033[1;37m')"
 C="$(printf '\033[1;36m')"
 
-echo ${R}"Cảnh báo: Vì đây là Proot sử dụng với giả lập QEMU nên có thể tốc độ sẽ chậm hơn Proot bình thường!"
+echo ${R}"Cảnh báo: Vì đây là Proot sử dụng với giả lập cấu trúc Arch nên có thể tốc độ sẽ chậm hơn Proot bình thường!"
 sleep 5
 clear
 
 echo ${G}"==> Tiến trình: Cài đặt những gói cần thiết..."
+pkg update
+pkg upgrade -y
 pkg install proot wget qemu-user-x86-64 proot-distro blink -y
 clear
 
 echo ${G}"==> Tiến trình: Lựa chọn Runtime để cài đặt..."
 echo ${R}"Vui lòng chọn loại Runtime mà bạn muốn sử dụng với Proot:"
 echo "1. qemu-x86_64-static (nhanh nhất, không ổn định, có thể bị Crash)"
-echo "2. qemu-user-x86-64 (nhanh, không ổn định, có thể bị Crash)"
+echo "2. qemu-user-x86-64 (nhanh vừa, hơi ổn định, có thể bị Crash)"
 echo "3. blink (không ổn định / thử nghiệm, thường xuyên bị Crash)"
 read -p "==> Lựa chọn của bạn là: " RUNTIME
 sleep 1
@@ -34,14 +36,14 @@ case $RUNTIME in
         case `dpkg --print-architecture` in
             aarch64)
 			    sleep 1
-			    echo ${G}"Đang cài đặt Runtime..."${W} ;
+			    echo ${G}"Đang tải và cài đặt Runtime..."${W} ;
 			    wget https://github.com/AllPlatform/Termux-UbuntuX86_64/raw/master/arm64/qemu-x86_64-static;
 			    chmod 777 qemu-x86_64-static;
 			    mv qemu-x86_64-static ~/../usr/bin ;;
             arm*)
                 echo ${G}"Please download the rootfs file for amd64." ;
 			    sleep 1
-			    echo ${G}"Đang cài đặt Runtime..."${W} ;
+			    echo ${G}"Đang tải và cài đặt Runtime..."${W} ;
 			    wget https://github.com/AllPlatform/Termux-UbuntuX86_64/raw/master/arm/qemu-x86_64-static;
 			    chmod 777 qemu-x86_64-static;
 			    mv qemu-x86_64-static ~/../usr/bin/ ;;
@@ -63,7 +65,7 @@ case $RUNTIME in
         echo ${C}"Bạn đã chọn Runtime là: qemu-user-x86-64!"
         echo ${G}"Đang cài đặt Runtime..."${W}
         pkg update
-        pkg install qemu-user-x86-64
+        pkg install qemu-user-x86-64 -y
         echo ${G}"W: Đã cài đặt Runtime xong!"${W}
         sleep 1
         clear
@@ -73,14 +75,14 @@ case $RUNTIME in
         echo ${C}"Bạn đã chọn Runtime là: Blink!"
         echo ${G}"Đang cài đặt Runtime..."${W}
         pkg update
-        pkg install blink
+        pkg install blink -y
         echo ${G}"W: Đã cài đặt Runtime xong!"${W}
         sleep 1
         clear
 	;;
 esac
 
-echo ${C}"=== Đã xong những thiết đặt cơ bản, hãy lựa chọn: "
+echo ${C}"=== Đã cài đặt xong những thiết đặt Runtime cơ bản, xin hãy lựa chọn: "
 echo "1. Cài đặt Distro theo đường dẫn URL bên ngoài (mượt hơn nhưng không ổn định, có thể sẽ bị Crash)"
 echo "2. Cài đặt Distro theo gói proot-distro của Termux (ổn định hơn nhưng tốc độ phản hồi chậm hơn)"
 read -p "Lựa chọn của bạn là (1 hoặc 2): " choice
@@ -139,7 +141,7 @@ case $choice in
         #!/bin/bash
         cd \$(dirname \$0)
         ## unset LD_PRELOAD nếu termux-exec đã được cài
-        unset LD_PRELOAD
+        ## unset LD_PRELOAD
         command="proot"
         command+=" --link2symlink"
 	command+=" --kill-on-exit"
